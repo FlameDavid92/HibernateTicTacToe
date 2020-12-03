@@ -7,17 +7,17 @@ public class TrisGame {
     public enum GameResp{INDEXERR, NOTVOIDERR, PLAYERWIN, SERVERWIN, TIE, CONTINUE}
 
     private final ValoreCella[][] game;
-    private final ValoreCella valorePlayer;
-    private final ValoreCella valoreServer;
+    private final ValoreCella simboloPlayer;
+    private final ValoreCella simboloServer;
     private int lastPlayerI = -1;
     private int lastPlayerJ = -1;
     private int lastServerI = -1;
     private int lastServerJ = -1;
     private int movesCounter;
 
-    public TrisGame(ValoreCella valorePlayer){
-        this.valorePlayer = valorePlayer;
-        this.valoreServer = (valorePlayer == ValoreCella.O) ? ValoreCella.X : ValoreCella.O;
+    public TrisGame(ValoreCella simboloPlayer){
+        this.simboloPlayer = simboloPlayer;
+        this.simboloServer = (simboloPlayer == ValoreCella.O) ? ValoreCella.X : ValoreCella.O;
         movesCounter = 0;
         game = new ValoreCella[3][3];
         for(int i=0; i<3; i++) {
@@ -27,11 +27,39 @@ public class TrisGame {
         }
     }
 
+    public TrisGame(String game, Character simboloPlayer, Integer movesCounter){
+        this.movesCounter = movesCounter;
+        this.simboloPlayer = (simboloPlayer == 'x') ? ValoreCella.X : ValoreCella.O;
+        this.simboloServer = (simboloPlayer == 'x') ? ValoreCella.O : ValoreCella.X;
+        String[] gameArrStr = game.split(";");
+        this.game = new ValoreCella[3][3];
+        for(int i=0; i<3; i++) {
+            for(int j=0; j<3; j++) {
+                String s = gameArrStr[(i*3)+j];
+                if(s.equals("o")){
+                    this.game[i][j] = ValoreCella.O;
+                }else if(s.equals("x")){
+                    this.game[i][j] = ValoreCella.X;
+                }else{
+                    this.game[i][j] = ValoreCella.VUOTA;
+                }
+            }
+        }
+    }
+
+    public ValoreCella getSimboloPlayer() {
+        return simboloPlayer;
+    }
+
+    public int getMovesCounter() {
+        return movesCounter;
+    }
+
     public GameResp gioca(int i, int j){
         if(i>=3 || i<0 || j>=3 || j<0) return GameResp.INDEXERR;
         if(game[i][j] == ValoreCella.VUOTA){
             movesCounter++;
-            game[i][j] = valorePlayer;
+            game[i][j] = simboloPlayer;
             lastPlayerI = i;
             lastPlayerJ = j;
             if(checkEndGame()) return GameResp.PLAYERWIN;
@@ -52,7 +80,7 @@ public class TrisGame {
             j = rndm.nextInt(3);
         }while(game[i][j] != ValoreCella.VUOTA);
         movesCounter++;
-        game[i][j] = valoreServer;
+        game[i][j] = simboloServer;
         lastServerI = i;
         lastServerJ = j;
     }
@@ -80,9 +108,24 @@ public class TrisGame {
         } return false;
     }
 
-    public String stringGame(){
+    public String getDAOGame(){
         StringBuilder str = new StringBuilder();
-        str.append("Tuo simbolo: ").append(valorePlayer).append("\n");
+        for(int i=0; i<3; i++) {
+            for(int j=0; j<3; j++) {
+                switch (game[i][j]){
+                    case VUOTA -> str.append(" ");
+                    case O -> str.append("o");
+                    case X -> str.append("x");
+                }
+                if(i<2||j<2) str.append(";");
+            }
+        }
+        return str.toString();
+    }
+
+    public String getViewGame(){
+        StringBuilder str = new StringBuilder();
+        str.append("Tuo simbolo: ").append(simboloPlayer).append("\n");
         for(int i=0; i<3; i++) {
             for(int j=0; j<3; j++) {
                 str.append("|");

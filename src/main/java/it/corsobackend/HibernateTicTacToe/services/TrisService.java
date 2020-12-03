@@ -1,71 +1,102 @@
 package it.corsobackend.HibernateTicTacToe.services;
 
+import it.corsobackend.HibernateTicTacToe.entities.TrisGameDAO;
 import it.corsobackend.HibernateTicTacToe.models.TrisGame;
+import it.corsobackend.HibernateTicTacToe.repositories.TrisGameRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
+import java.util.Optional;
 
 @Service
 public class TrisService {
-    public static HashMap<String, TrisGame> games = new HashMap<>();
 
-    public String gioca(String auth, int i, int j){
-        TrisGame game = games.get(auth);
-        if(game == null) return "Vai a /new per iniziare un nuovo gioco!\n";
-        String ret = "";
-        TrisGame.GameResp gameResp = game.gioca(i, j);
-        switch (gameResp) {
-            case INDEXERR -> ret += "Indici non corretti!\n";
-            case NOTVOIDERR -> ret += "Cella già occupata!\n";
-            case PLAYERWIN -> {
-                ret += "Hai vinto!!!\n";
-                ret += "Vai a /new per rigiocare!\n";
-                games.put(auth, null);
+    public String gioca(String auth, int i, int j, TrisGameRepository tgr){
+        Optional<TrisGameDAO> optTrisGameDAO = tgr.findById(auth);
+        if(optTrisGameDAO.isPresent()){
+            TrisGameDAO trisGameDAO = optTrisGameDAO.get();
+            TrisGame trisGame = getModelTrisGame(trisGameDAO);
+            TrisGame.GameResp gameResp = trisGame.gioca(i, j);
+            switch (gameResp) {
+                case INDEXERR -> {
+                    return "Indici non corretti!\n"+trisGame.getViewGame();
+                }
+                case NOTVOIDERR -> {
+                    return "Cella già occupata!\n"+trisGame.getViewGame();
+                }
+                case PLAYERWIN -> {
+                    tgr.delete(trisGameDAO);
+                    return "Hai vinto!!!\n"+"Vai a /new per rigiocare!\n"+trisGame.getViewGame();
+                }
+                case SERVERWIN -> {
+                    tgr.delete(trisGameDAO);
+                    return "Hai perso!\n"+"Vai a /new per rigiocare!\n"+trisGame.getViewGame();
+                }
+                case TIE -> {
+                    tgr.delete(trisGameDAO);
+                    return "Partita conclusa in parità.\n"+"Vai a /new per rigiocare!\n"+trisGame.getViewGame();
+                }
+                case CONTINUE -> {
+                    trisGameDAO.setGame(trisGame.getDAOGame());
+                    trisGameDAO.setMovesCounter(trisGame.getMovesCounter());
+                    tgr.save(trisGameDAO);
+                    return trisGame.getViewGame();
+                }
+                default -> {
+                    return "Vai a /new per iniziare un nuovo gioco!\n";
+                }
             }
-            case SERVERWIN -> {
-                ret += "Hai perso!\n";
-                ret += "Vai a /new per rigiocare!\n";
-                games.put(auth, null);
-            }
-            case TIE -> {
-                ret += "Partita conclusa in parità.\n";
-                ret += "Vai a /new per rigiocare!\n";
-                games.put(auth, null);
-            }
+        }else{
+            return "Vai a /new per iniziare un nuovo gioco!\n";
         }
-        return ret+game.stringGame();
     }
 
-    public String nuovoGioco(String auth, String simboloPlayer){
+    public String nuovoGioco(String auth, String simboloPlayer, TrisGameRepository tgr){
         if(simboloPlayer.length() > 1) return "Simbolo player non corretto!";
 
-        TrisGame.ValoreCella valorePlayer = null;
-        if(simboloPlayer.toLowerCase().equals("o")) valorePlayer = TrisGame.ValoreCella.O;
-        else if(simboloPlayer.toLowerCase().equals("x")) valorePlayer = TrisGame.ValoreCella.X;
-        else return "Simbolo player non corretto!";
+        TrisGame.ValoreCella valorePlayer;
+        char charSimboloPlayer;
+        if(simboloPlayer.equalsIgnoreCase("o")) {
+            valorePlayer = TrisGame.ValoreCella.O;
+            charSimboloPlayer = 'o';
+        } else if(simboloPlayer.equalsIgnoreCase("x")) {
+            valorePlayer = TrisGame.ValoreCella.X;
+            charSimboloPlayer = 'x';
+        } else return "Simbolo player non corretto!";
 
-        String ret="";
-        if(games.put(auth, new TrisGame(valorePlayer)) == null){
-            ret+="Nuova partita iniziata!\n";
+        TrisGame trisGame = new TrisGame(valorePlayer);
+        TrisGameDAO trisGameDAO = new TrisGameDAO(auth,trisGame.getDAOGame(),charSimboloPlayer, trisGame.getMovesCounter());
+        tgr.save(trisGameDAO);
+
+        return "Nuova partita iniziata!\n"+trisGame.getViewGame();
+    }
+
+    public String back(String auth, TrisGameRepository tgr){
+        Optional<TrisGameDAO> optTrisGameDAO = tgr.findById(auth);
+        if(optTrisGameDAO.isPresent()){
+            TrisGameDAO trisGameDAO = optTrisGameDAO.get();
+            TrisGame trisGame = getModelTrisGame(trisGameDAO);
+            String ret = "";
+            if(!trisGame.back()){
+                ret+="Mossa non disponibile!\n";
+            }
+            return ret+trisGame.getViewGame();
         }else{
-            ret+="Partita riavviata!\n";
+            return "Vai a /new per iniziare un nuovo gioco!\n";
         }
-        return ret+games.get(auth).stringGame();
     }
 
-    public String back(String auth){
-        TrisGame game = games.get(auth);
-        if(game == null) return "Vai a /new per iniziare un nuovo gioco!\n";
-        String ret = "";
-        if(!game.back()){
-            ret+="Mossa non disponibile!\n";
-        }
-        return ret+game.stringGame();
+    public String statoAttuale(String auth, TrisGameRepository tgr){
+        Optional<TrisGameDAO> optTrisGameDAO = tgr.findById(auth);
+        if(optTrisGameDAO.isPresent()){
+            TrisGameDAO trisGameDAO = optTrisGameDAO.get();
+            TrisGame trisGame = getModelTrisGame(trisGameDAO);
+            return trisGame.getViewGame();
+        }else return "Vai a /new per iniziare un nuovo gioco!\n";
     }
 
-    public String statoAttuale(String auth){
-        TrisGame game = games.get(auth);
-        if(game == null) return "Vai a /new per iniziare un nuovo gioco!\n";
-        return game.stringGame();
+    private TrisGame getModelTrisGame(TrisGameDAO trisGameDAO){
+        return new TrisGame(trisGameDAO.getGame(),
+                trisGameDAO.getSimboloPlayer(),
+                trisGameDAO.getMovesCounter());
     }
 }

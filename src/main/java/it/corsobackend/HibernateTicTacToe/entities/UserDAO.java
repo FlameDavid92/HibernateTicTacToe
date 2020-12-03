@@ -3,7 +3,7 @@ package it.corsobackend.HibernateTicTacToe.entities;
 import javax.persistence.*;
 
 @Entity
-public class UserDB {
+public class UserDAO {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", updatable = false, nullable = false)
@@ -16,11 +16,11 @@ public class UserDB {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
-    private CookieDB cookieDB;
+    private CookieDAO cookieDAO;
 
-    public UserDB() {
+    public UserDAO() {
     }
-    public UserDB(String username, String password, String telefono, Integer salt) {
+    public UserDAO(String username, String password, String telefono, Integer salt) {
         this.username = username;
         this.password = password;
         this.telefono = telefono;
@@ -39,8 +39,8 @@ public class UserDB {
     public Integer getSalt() {
         return salt;
     }
-    public CookieDB getCookie() {
-        return cookieDB;
+    public CookieDAO getCookie() {
+        return cookieDAO;
     }
 
     public void setUsername(String username) {
@@ -51,9 +51,9 @@ public class UserDB {
         this.password = password;
     }
 
-    public void setCookie(CookieDB cookieDB) {
+    public void setCookie(CookieDAO cookieDAO) {
 
-        this.cookieDB = cookieDB;
+        this.cookieDAO = cookieDAO;
 
     }
 }

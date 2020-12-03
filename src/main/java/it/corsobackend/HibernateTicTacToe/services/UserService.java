@@ -1,7 +1,7 @@
 package it.corsobackend.HibernateTicTacToe.services;
 
-import it.corsobackend.HibernateTicTacToe.entities.CookieDB;
-import it.corsobackend.HibernateTicTacToe.entities.UserDB;
+import it.corsobackend.HibernateTicTacToe.entities.CookieDAO;
+import it.corsobackend.HibernateTicTacToe.entities.UserDAO;
 import it.corsobackend.HibernateTicTacToe.repositories.CookieRepository;
 import it.corsobackend.HibernateTicTacToe.repositories.UserRepository;
 import it.corsobackend.HibernateTicTacToe.models.UserModel;
@@ -26,7 +26,7 @@ public class UserService {
         UserModel userModel = new UserModel(userview.getUsername(), userview.getPassword(), userview.getTelefono());
         try{
             Integer salt = new Random().nextInt(50);
-            ur.save(new UserDB(userModel.getUsername(),
+            ur.save(new UserDAO(userModel.getUsername(),
                     securityService.computeHash(salt+userModel.getPassword()+salt),
                     userModel.getTelefono(),
                     salt));
@@ -38,16 +38,16 @@ public class UserService {
 
     public String login(UserView userview){
         UserModel userModel = new UserModel(userview.getUsername(), userview.getPassword(), userview.getTelefono());
-        Optional<UserDB> optionalUserDB = ur.findByUsername(userModel.getUsername());
+        Optional<UserDAO> optionalUserDB = ur.findByUsername(userModel.getUsername());
         if(optionalUserDB.isPresent()) {
-            UserDB userDB = optionalUserDB.get();
-            Integer salt = userDB.getSalt();
+            UserDAO userDAO = optionalUserDB.get();
+            Integer salt = userDAO.getSalt();
             String cryptPass = securityService.computeHash(salt+userModel.getPassword()+salt);
-            if(cryptPass.equals(userDB.getPassword())) {
+            if(cryptPass.equals(userDAO.getPassword())) {
                 String cookieValue = UUID.randomUUID().toString();
-                CookieDB nuovoCookieDB = new CookieDB(cookieValue,userDB);
-                userDB.setCookie(nuovoCookieDB);
-                ur.save(userDB);
+                CookieDAO nuovoCookieDAO = new CookieDAO(cookieValue, userDAO);
+                userDAO.setCookie(nuovoCookieDAO);
+                ur.save(userDAO);
                 return cookieValue;
             } else {
                 /*Password errata*/
@@ -60,17 +60,17 @@ public class UserService {
     }
 
     public boolean logout(String auth){
-        Optional<CookieDB> optCookie = cr.findByCookie(auth);
+        Optional<CookieDAO> optCookie = cr.findByCookie(auth);
         if(optCookie.isPresent()){
-            UserDB userDB = optCookie.get().getUser();
-            userDB.setCookie(null);
+            UserDAO userDAO = optCookie.get().getUser();
+            userDAO.setCookie(null);
             cr.delete(optCookie.get());
             return true;
         }else return false;
     }
 
-    public CookieDB isLogged(String auth){
-        Optional<CookieDB> optCookie = cr.findByCookie(auth);
+    public CookieDAO isLogged(String auth){
+        Optional<CookieDAO> optCookie = cr.findByCookie(auth);
         return optCookie.orElse(null);
     }
 

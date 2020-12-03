@@ -14,7 +14,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-public class ControllerAuth {
+public class AuthController {
     @Autowired private UserRepository ur;
     @Autowired private CookieRepository cr;
     @Autowired private UserService us;

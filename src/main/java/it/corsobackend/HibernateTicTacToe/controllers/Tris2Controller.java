@@ -1,6 +1,6 @@
 package it.corsobackend.HibernateTicTacToe.controllers;
 
-import it.corsobackend.HibernateTicTacToe.entities.CookieDB;
+import it.corsobackend.HibernateTicTacToe.entities.CookieDAO;
 import it.corsobackend.HibernateTicTacToe.services.TrisService2;
 import it.corsobackend.HibernateTicTacToe.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +17,8 @@ public class Tris2Controller {
                        @PathVariable("idPartita") int idPartita,
                        @PathVariable("simboloPlayer") String simboloPlayer,
                        @CookieValue(value = "auth", defaultValue = "") String auth) {
-        CookieDB cookieDB = us.isLogged(auth);
-        if (cookieDB == null) return "Accesso protetto, effettua il login!";
+        CookieDAO cookieDAO = us.isLogged(auth);
+        if (cookieDAO == null) return "Accesso protetto, effettua il login!";
         return ts.nuovoGioco2(idPartita, simboloPlayer);
     }
 
