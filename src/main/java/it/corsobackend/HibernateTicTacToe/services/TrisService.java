@@ -7,11 +7,11 @@ import java.util.HashMap;
 
 @Service
 public class TrisService {
-    public static HashMap<Integer, TrisGame> games = new HashMap<>();
+    public static HashMap<String, TrisGame> games = new HashMap<>();
 
-    public String gioca(int idPartita, int i, int j){
-        TrisGame game = games.get(idPartita);
-        if(game == null) return "Vai a /"+idPartita+"/new per iniziare un nuovo gioco!\n";
+    public String gioca(String auth, int i, int j){
+        TrisGame game = games.get(auth);
+        if(game == null) return "Vai a /new per iniziare un nuovo gioco!\n";
         String ret = "";
         TrisGame.GameResp gameResp = game.gioca(i, j);
         switch (gameResp) {
@@ -19,24 +19,24 @@ public class TrisService {
             case NOTVOIDERR -> ret += "Cella già occupata!\n";
             case PLAYERWIN -> {
                 ret += "Hai vinto!!!\n";
-                ret += "Vai a /" + idPartita + "/new per rigiocare!\n";
-                games.put(idPartita, null);
+                ret += "Vai a /new per rigiocare!\n";
+                games.put(auth, null);
             }
             case SERVERWIN -> {
                 ret += "Hai perso!\n";
-                ret += "Vai a /" + idPartita + "/new per rigiocare!\n";
-                games.put(idPartita, null);
+                ret += "Vai a /new per rigiocare!\n";
+                games.put(auth, null);
             }
             case TIE -> {
                 ret += "Partita conclusa in parità.\n";
-                ret += "Vai a /" + idPartita + "/new per rigiocare!\n";
-                games.put(idPartita, null);
+                ret += "Vai a /new per rigiocare!\n";
+                games.put(auth, null);
             }
         }
         return ret+game.stringGame();
     }
 
-    public String nuovoGioco(int idPartita, String simboloPlayer){
+    public String nuovoGioco(String auth, String simboloPlayer){
         if(simboloPlayer.length() > 1) return "Simbolo player non corretto!";
 
         TrisGame.ValoreCella valorePlayer = null;
@@ -45,17 +45,17 @@ public class TrisService {
         else return "Simbolo player non corretto!";
 
         String ret="";
-        if(games.put(idPartita, new TrisGame(valorePlayer)) == null){
+        if(games.put(auth, new TrisGame(valorePlayer)) == null){
             ret+="Nuova partita iniziata!\n";
         }else{
             ret+="Partita riavviata!\n";
         }
-        return ret+games.get(idPartita).stringGame();
+        return ret+games.get(auth).stringGame();
     }
 
-    public String back(int idPartita){
-        TrisGame game = games.get(idPartita);
-        if(game == null) return "Vai a /"+idPartita+"/new per iniziare un nuovo gioco!\n";
+    public String back(String auth){
+        TrisGame game = games.get(auth);
+        if(game == null) return "Vai a /new per iniziare un nuovo gioco!\n";
         String ret = "";
         if(!game.back()){
             ret+="Mossa non disponibile!\n";
@@ -63,9 +63,9 @@ public class TrisService {
         return ret+game.stringGame();
     }
 
-    public String statoAttuale(int idPartita){
-        TrisGame game = games.get(idPartita);
-        if(game == null) return "Vai a /"+idPartita+"/new per iniziare un nuovo gioco!\n";
+    public String statoAttuale(String auth){
+        TrisGame game = games.get(auth);
+        if(game == null) return "Vai a /new per iniziare un nuovo gioco!\n";
         return game.stringGame();
     }
 }

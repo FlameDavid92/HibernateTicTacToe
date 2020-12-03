@@ -11,40 +11,37 @@ import org.springframework.web.bind.annotation.*;
 public class Tris1Controller {
     @Autowired private UserService us;
 
-    @GetMapping("/{idPartita}/new/{simboloPlayer}")
+    @GetMapping("/new/{simboloPlayer}")
     String nuovoGioco(@Autowired TrisService ts,
-                      @PathVariable("idPartita") int idPartita,
                       @PathVariable("simboloPlayer") String simboloPlayer,
                       @CookieValue(value = "auth", defaultValue = "") String auth) {
         CookieDB cookieDB = us.isLogged(auth);
         if (cookieDB == null) return "Accesso protetto, effettua il login!";
-        return ts.nuovoGioco(idPartita, simboloPlayer);
+        return ts.nuovoGioco(auth, simboloPlayer);
     }
 
-    @GetMapping("/{idPartita}/move/{posI}/{posJ}")
-    String inserisciMossa(@Autowired TrisService ts, @PathVariable("idPartita") int idPartita,
+    @GetMapping("/move/{posI}/{posJ}")
+    String inserisciMossa(@Autowired TrisService ts,
                           @PathVariable("posI") int posI, @PathVariable("posJ") int posJ,
                           @CookieValue(value = "auth", defaultValue = "") String auth) {
         CookieDB cookieDB = us.isLogged(auth);
         if (cookieDB == null) return "Accesso protetto, effettua il login!";
-        return ts.gioca(idPartita, posI, posJ);
+        return ts.gioca(auth, posI, posJ);
     }
 
-    @GetMapping("/{idPartita}/back")
+    @GetMapping("/back")
     String cancellaUltimaMossa(@Autowired TrisService ts,
-                               @PathVariable("idPartita") int idPartita,
                                @CookieValue(value = "auth", defaultValue = "") String auth) {
         CookieDB cookieDB = us.isLogged(auth);
         if (cookieDB == null) return "Accesso protetto, effettua il login!";
-        return ts.back(idPartita);
+        return ts.back(auth);
     }
 
-    @GetMapping("/{idPartita}/state")
+    @GetMapping("/state")
     String statoPartita(@Autowired TrisService ts,
-                        @PathVariable("idPartita") int idPartita,
                         @CookieValue(value = "auth", defaultValue = "") String auth) {
         CookieDB cookieDB = us.isLogged(auth);
         if (cookieDB == null) return "Accesso protetto, effettua il login!";
-        return ts.statoAttuale(idPartita);
+        return ts.statoAttuale(auth);
     }
 }
