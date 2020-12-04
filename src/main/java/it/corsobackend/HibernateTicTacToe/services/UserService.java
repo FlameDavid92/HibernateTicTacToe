@@ -6,10 +6,13 @@ import it.corsobackend.HibernateTicTacToe.repositories.CookieRepository;
 import it.corsobackend.HibernateTicTacToe.repositories.UserRepository;
 import it.corsobackend.HibernateTicTacToe.models.UserModel;
 import it.corsobackend.HibernateTicTacToe.views.UserView;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -21,6 +24,9 @@ public class UserService {
     @Autowired private CookieRepository cr;
 
     @Autowired SecurityService securityService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public boolean registration(UserView userview){
         UserModel userModel = new UserModel(userview.getUsername(), userview.getPassword(), userview.getTelefono());
@@ -49,6 +55,7 @@ public class UserService {
                 userDAO.setCookie(nuovoCookieDAO);
                 ur.save(userDAO);
                 return cookieValue;
+                /*Problema session doppio login...!?!*/
             } else {
                 /*Password errata*/
                 return null;

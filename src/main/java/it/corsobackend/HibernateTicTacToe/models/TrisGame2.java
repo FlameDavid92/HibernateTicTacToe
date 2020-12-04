@@ -18,6 +18,26 @@ public class TrisGame2 {
         trisGame = 0;
     }
 
+    public TrisGame2(int trisGame, boolean playerX, int lastPlayerPos, int lastServerPos, int movesCounter){
+        this.trisGame = trisGame;
+        this.playerX = playerX;
+        this.lastPlayerPos = lastPlayerPos;
+        this.lastServerPos = lastServerPos;
+        this.movesCounter = movesCounter;
+    }
+
+    public int getTrisGame() {
+        return trisGame;
+    }
+
+    public int getLastPlayerPos() {
+        return lastPlayerPos;
+    }
+
+    public int getLastServerPos() {
+        return lastServerPos;
+    }
+
     public boolean isPlayerX() {
         return playerX;
     }
@@ -70,7 +90,7 @@ public class TrisGame2 {
         } return false;
     }
 
-    public String stringGame(){
+    public String getViewGame(){
         StringBuilder str = new StringBuilder();
         str.append("Tuo simbolo: ").append((isPlayerX()) ? "X" : "O").append("\n");
         int tempInt = trisGame;

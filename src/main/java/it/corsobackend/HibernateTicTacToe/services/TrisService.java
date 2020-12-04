@@ -3,7 +3,6 @@ package it.corsobackend.HibernateTicTacToe.services;
 import it.corsobackend.HibernateTicTacToe.entities.TrisGameDAO;
 import it.corsobackend.HibernateTicTacToe.models.TrisGame;
 import it.corsobackend.HibernateTicTacToe.repositories.TrisGameRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
@@ -38,6 +37,7 @@ public class TrisService {
                 case CONTINUE -> {
                     trisGameDAO.setGame(trisGame.getDAOGame());
                     trisGameDAO.setMovesCounter(trisGame.getMovesCounter());
+                    trisGameDAO.setLastMoves(trisGame.getLastMoves());
                     tgr.save(trisGameDAO);
                     return trisGame.getViewGame();
                 }
@@ -64,7 +64,8 @@ public class TrisService {
         } else return "Simbolo player non corretto!";
 
         TrisGame trisGame = new TrisGame(valorePlayer);
-        TrisGameDAO trisGameDAO = new TrisGameDAO(auth,trisGame.getDAOGame(),charSimboloPlayer, trisGame.getMovesCounter());
+        TrisGameDAO trisGameDAO = new TrisGameDAO(auth, trisGame.getDAOGame(),
+                charSimboloPlayer, trisGame.getMovesCounter(), trisGame.getLastMoves());
         tgr.save(trisGameDAO);
 
         return "Nuova partita iniziata!\n"+trisGame.getViewGame();
@@ -79,6 +80,10 @@ public class TrisService {
             if(!trisGame.back()){
                 ret+="Mossa non disponibile!\n";
             }
+            trisGameDAO.setGame(trisGame.getDAOGame());
+            trisGameDAO.setMovesCounter(trisGame.getMovesCounter()-2);
+            trisGameDAO.setLastMoves("-1;-1;-1;-1;");
+            tgr.save(trisGameDAO);
             return ret+trisGame.getViewGame();
         }else{
             return "Vai a /new per iniziare un nuovo gioco!\n";
@@ -97,6 +102,7 @@ public class TrisService {
     private TrisGame getModelTrisGame(TrisGameDAO trisGameDAO){
         return new TrisGame(trisGameDAO.getGame(),
                 trisGameDAO.getSimboloPlayer(),
-                trisGameDAO.getMovesCounter());
+                trisGameDAO.getMovesCounter(),
+                trisGameDAO.getLastMoves());
     }
 }

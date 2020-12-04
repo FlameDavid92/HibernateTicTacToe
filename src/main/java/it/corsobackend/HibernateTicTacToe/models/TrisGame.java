@@ -27,7 +27,7 @@ public class TrisGame {
         }
     }
 
-    public TrisGame(String game, Character simboloPlayer, Integer movesCounter){
+    public TrisGame(String game, Character simboloPlayer, Integer movesCounter, String lastMoves){
         this.movesCounter = movesCounter;
         this.simboloPlayer = (simboloPlayer == 'x') ? ValoreCella.X : ValoreCella.O;
         this.simboloServer = (simboloPlayer == 'x') ? ValoreCella.O : ValoreCella.X;
@@ -45,6 +45,11 @@ public class TrisGame {
                 }
             }
         }
+        String[] arrLastMoves = lastMoves.split(";");
+        this.lastPlayerI = Integer.parseInt(arrLastMoves[0]);
+        this.lastPlayerJ = Integer.parseInt(arrLastMoves[1]);
+        this.lastServerI = Integer.parseInt(arrLastMoves[2]);
+        this.lastServerJ = Integer.parseInt(arrLastMoves[3]);
     }
 
     public ValoreCella getSimboloPlayer() {
@@ -53,6 +58,22 @@ public class TrisGame {
 
     public int getMovesCounter() {
         return movesCounter;
+    }
+
+    public int getLastPlayerI() {
+        return lastPlayerI;
+    }
+
+    public int getLastPlayerJ() {
+        return lastPlayerJ;
+    }
+
+    public int getLastServerI() {
+        return lastServerI;
+    }
+
+    public int getLastServerJ() {
+        return lastServerJ;
     }
 
     public GameResp gioca(int i, int j){
@@ -106,6 +127,10 @@ public class TrisGame {
             lastServerJ = -1;
             return true;
         } return false;
+    }
+
+    public String getLastMoves(){
+        return lastPlayerI+";"+lastPlayerJ+";"+lastServerI+";"+lastServerJ;
     }
 
     public String getDAOGame(){

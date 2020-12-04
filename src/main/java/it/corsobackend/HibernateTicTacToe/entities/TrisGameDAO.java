@@ -10,14 +10,17 @@ public class TrisGameDAO {
     private String game;
     private Character simboloPlayer;
     private Integer movesCounter;
+    private String lastMoves;
 
     public TrisGameDAO(){}
 
-    public TrisGameDAO(String id, String game, Character simboloPlayer, Integer movesCounter){
+    public TrisGameDAO(String id, String game, Character simboloPlayer, Integer movesCounter,
+                       String lastMoves){
         this.id = id;
         this.game = game;
         this.simboloPlayer = simboloPlayer;
         this.movesCounter = movesCounter;
+        this.lastMoves = lastMoves;
     }
 
     public String getId() {
@@ -46,5 +49,13 @@ public class TrisGameDAO {
 
     public void setMovesCounter(Integer movesCounter) {
         this.movesCounter = movesCounter;
+    }
+
+    public String getLastMoves() {
+        return lastMoves;
+    }
+
+    public void setLastMoves(String lastMoves) {
+        this.lastMoves = lastMoves;
     }
 }
