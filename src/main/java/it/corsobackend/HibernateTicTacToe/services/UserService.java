@@ -20,63 +20,74 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-    @Autowired private UserRepository ur;
-    @Autowired private CookieRepository cr;
+    @Autowired
+    private UserRepository ur;
+    @Autowired
+    private CookieRepository cr;
 
-    @Autowired SecurityService securityService;
+    @Autowired
+    SecurityService securityService;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    public boolean registration(UserView userview){
+    public boolean registration(UserView userview) {
         UserModel userModel = new UserModel(userview.getUsername(), userview.getPassword(), userview.getTelefono());
-        try{
+        try {
             Integer salt = new Random().nextInt(50);
             ur.save(new UserDAO(userModel.getUsername(),
-                    securityService.computeHash(salt+userModel.getPassword()+salt),
+                    securityService.computeHash(salt + userModel.getPassword() + salt),
                     userModel.getTelefono(),
                     salt));
             return true;
-        }catch (DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             return false;
         }
     }
 
-    public String login(UserView userview){
+    public String login(UserView userview) {
+        //modificare cookie vecchio in caso di utente loggato
+
         UserModel userModel = new UserModel(userview.getUsername(), userview.getPassword(), userview.getTelefono());
         Optional<UserDAO> optionalUserDB = ur.findByUsername(userModel.getUsername());
-        if(optionalUserDB.isPresent()) {
+
+        if (optionalUserDB.isPresent()) {
             UserDAO userDAO = optionalUserDB.get();
             Integer salt = userDAO.getSalt();
-            String cryptPass = securityService.computeHash(salt+userModel.getPassword()+salt);
-            if(cryptPass.equals(userDAO.getPassword())) {
+            String cryptPass = securityService.computeHash(salt + userModel.getPassword() + salt);
+            if (cryptPass.equals(userDAO.getPassword())) {
                 String cookieValue = UUID.randomUUID().toString();
-                CookieDAO nuovoCookieDAO = new CookieDAO(cookieValue, userDAO);
-                userDAO.setCookie(nuovoCookieDAO);
+
+                if (userDAO.getCookie() == null) {
+                    CookieDAO nuovoCookieDAO = new CookieDAO(cookieValue, userDAO);
+                    userDAO.setCookie(nuovoCookieDAO);
+                }else{
+                    //userDAO.getCookie().setCookie(cookieValue); /*ritorna un nuovo cookie*/
+                    return userDAO.getCookie().getCookie(); /*ritorna vecchio cookie*/
+                }
                 ur.save(userDAO);
                 return cookieValue;
-                /*Problema session doppio login...!?!*/
             } else {
                 /*Password errata*/
                 return null;
             }
-        }else{
+        } else {
             /*Non esiste l'utente con quello username*/
             return null;
         }
     }
 
-    public boolean logout(String auth){
+    public boolean logout(String auth) {
         Optional<CookieDAO> optCookie = cr.findByCookie(auth);
-        if(optCookie.isPresent()){
+        if (optCookie.isPresent()) {
             UserDAO userDAO = optCookie.get().getUser();
             userDAO.setCookie(null);
             cr.delete(optCookie.get());
             return true;
-        }else return false;
+        } else return false;
     }
 
-    public CookieDAO isLogged(String auth){
+    public CookieDAO isLogged(String auth) {
         Optional<CookieDAO> optCookie = cr.findByCookie(auth);
         return optCookie.orElse(null);
     }

@@ -14,7 +14,7 @@ public class UserDAO {
     private String telefono;
     private Integer salt;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.MERGE)
     @PrimaryKeyJoinColumn
     private CookieDAO cookieDAO;
 
